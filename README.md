@@ -143,6 +143,106 @@ status:
 
 **Load balancer** - A LoadBalancer service is the standard way to expose a service to the internet. On GKE, this will spin up a Network Load Balancer that will give you a single IP address that will forward all traffic to your service.
 
+## Deploying our app using Kubernetes
+
+Node deployment
+
+```yml
+---
+apiVersion: apps/v1 # which api call we need to make for k8 to make a deployment for us
+kind: Deployment #tool for running local Kubernetes clusters using Docker container “nodes”
+metadata: # metadata to name your deployment - case insensitive
+  name: node-deployment
+spec: # labels and selectors are communication services between micro-services
+  selector:
+    matchLabels:
+      app: node # look for this label to match with k8s service
+  
+  replicas: 3 # how many pods
+  template: # template to use it's label for k8s to launch in the browser
+    metadata:
+      labels:
+        app: node 
+    spec:
+      containers:
+        - name: node
+          image: yfpc/yacob_docker_app:v3
+          ports: 
+            - containerPort: 3000
+          env:
+            - name: DB_HOST
+              value: mongodb://mongo:27017/posts
+          imagePullPolicy: IfNotPresent    
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node
+spec:
+  selector:
+    app: node
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer     
+```
+
+Mongodb deployment and persistent volume claim
+
+```yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: storage
+              mountPath: /data/db
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: mongo-db # claims persistent volume
+# when restarting pod, all saved data is gone. Persistent Volume ensures that the saved data is still there even if pod is gone. New pod will read existing data from
+# that storage to get up to date data.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim # application has to claim persistent volume
+metadata:
+  name: mongo-db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  selector:
+    app: mongo
+  ports:
+    - port: 27017
+      targetPort: 27017
+```
+
 ### **Volumes**
 ---------------
 when restarting pod, all saved data is gone. Persistent Volume ensures that the saved data is still there even if pod is gone. New pod will read the existing data from that storage to get up to date data.
