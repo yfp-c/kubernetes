@@ -4,6 +4,10 @@
 `kubectl` for official documentation
 `kubectl explain svc` for kind and version information
 `kubectl get pods`
+`kubectl get pvc`
+`kubectl get all`
+`kubectl delete pvc --all` && `kubectl delete pvc [name]`
+`kubectl delete all --all`
 
 ### **What is Kubernetes?**
 ------------
