@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1 # which api call we need to make for k8 to make a deployment for us
+kind: Deployment #tool for running local Kubernetes clusters using Docker container “nodes”
+metadata: # metadata to name your deployment - case insensitive
+  name: node-deployment
+spec: # labels and selectors are communication services between micro-services
+  selector:
+    matchLabels:
+      app: node # look for this label to match with k8s service
+  
+  replicas: 3 # how many pods
+  template: # template to use it's label for k8s to launch in the browser
+    metadata:
+      labels:
+        app: node 
+    spec:
+      containers:
+        - name: node
+          image: yfpc/yacob_docker_app:v3
+          ports: 
+            - containerPort: 3000
+          env:
+            - name: DB_HOST
+              value: mongodb://mongo:27017/posts
+          imagePullPolicy: IfNotPresent    
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node
+spec:
+  selector:
+    app: node
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer     

@@ -73,3 +73,76 @@ Kubernetes keeps a rolling revision history for pods, so you can roll back to an
 | Pods        |A pod consists of containers and supplies shared storage, network resources and specifies how the containers will run. 
 | Control Plane | The Control Plane is responsible for maintaining the desired end state of the Kubernetes cluster as defined by the developer.
 |K-proxy     | A network proxy service that runs on each node in a given cluster. It maintains network rules on nodes that allow network communications to pods from within or outside the cluster.
+
+### Creating pods
+------------------
+In order to test Nginx we create two yml files, one to create the pods with the pulled image and another to map our localhost to port 80 using loadbalancers.
+
+This yml file creates a deployment for our nginx image and creates 3 pods.
+
+```yml
+---
+
+apiVersion: apps/v1 # which api call we need to make for k8 to make a deployment for us
+kind: Deployment # pod, service # replica set # ASG
+metadata: # metadata to name your deployment - case insensitive
+  name: nginx-deployment
+
+spec: # labels and selectors are communication services between micro-services
+  selector:
+    matchLabels:
+      app: nginx # look for this label to match with k8s service
+
+  replicas: 3
+
+# template to use it's label for k8s to launch in the browser
+  template:
+    metadata:
+      labels:
+        app: nginx
+
+# define the container specs
+    spec:
+      containers:
+      - name: nginx
+        image: yfpc/103anginx   # ahskhan/sre_nginx_test
+        ports:
+        - containerPort: 80
+
+        imagePullPolicy: Always
+```
+
+Map our localhost to port 80 using loadbalancers:
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-deployment
+  namespace: default
+  
+  
+spec:
+  ports:
+  - nodePort: 30442 # range is 30000-32768
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx # this label connects this service to deployment
+    # session affinity - your load balancer directs all requests from a particular end user to a specific origin server.
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+      - hostname: localhost  
+```
+
+**nodePort** - A NodePort service is the most primitive way to get external traffic directly to your service. NodePort, as the name implies, opens a specific port on all the Nodes (the VMs), and any traffic that is sent to this port is forwarded to the service.
+
+**Load balancer** - A LoadBalancer service is the standard way to expose a service to the internet. On GKE, this will spin up a Network Load Balancer that will give you a single IP address that will forward all traffic to your service.
+
+### **Volumes**
+---------------
+when restarting pod, all saved data is gone. Persistent Volume ensures that the saved data is still there even if pod is gone. New pod will read the existing data from that storage to get up to date data.
