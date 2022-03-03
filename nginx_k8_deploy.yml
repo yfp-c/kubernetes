@@ -1,0 +1,36 @@
+---
+# k8 is a yml file -
+# K8s works with API versions to declare the resources
+# we are going to create a deployment for our nginx-image
+# we will create 3 pods with this deployment
+# kubectl get name-service - deploy/deployment - service/svc - pods
+# kubectl create -f file.yml
+# kubectl delete name-service deploy deploy-name
+
+apiVersion: apps/v1 # which api call we need to make for k8 to make a deployment for us
+kind: Deployment # pod, service # replicaset # ASG
+metadata: # metadata to name your deployment - case insensitive
+  name: nginx-deployment
+
+spec: # labels and selectors are communication services between micro-services
+  selector:
+    matchLabels:
+      app: nginx # look for this label to match with k8s service
+
+  replicas: 3
+
+# template to use it's label for k8s to launch in the browser
+  template:
+    metadata:
+      labels:
+        app: nginx
+
+# define the container specs
+    spec:
+      containers:
+      - name: nginx
+        image: yfpc/103anginx   # ahskhan/sre_nginx_test
+        ports:
+        - containerPort: 80
+
+        imagePullPolicy: Always

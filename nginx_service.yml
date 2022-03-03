@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-deployment
+  namespace: default
+  resourceVersion: "40883"
+  
+
+
+spec:
+  ports:
+  - nodePort: 30442 # range is 30000-32768
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx # this label connects this service to deployment
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+      - hostname: localhost  

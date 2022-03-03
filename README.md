@@ -3,6 +3,7 @@
 `kubectl get service` or `kubectl get svc` for kubernetes service information
 `kubectl` for official documentation
 `kubectl explain svc` for kind and version information
+`kubectl get pods`
 
 ### **What is Kubernetes?**
 ------------
