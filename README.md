@@ -251,3 +251,28 @@ spec:
 ### **Volumes**
 ---------------
 when restarting pod, all saved data is gone. Persistent Volume ensures that the saved data is still there even if pod is gone. New pod will read the existing data from that storage to get up to date data.
+
+### Docker and Kubernetes on AWS
+
+Install docker, K8 and minikube using the guides below
+
+[Install Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+
+[Install everything else](https://aws.plainenglish.io/running-kubernetes-using-minikube-cluster-on-the-aws-cloud-4259df916a07)
+
+To run the docker app container in K8, run the docker image from docker hub and copy the app folder from the docker container into the ec2 instance. 
+
+`docker cp <containerId>:/file/path/within/container /host/path/target`
+
+Create the yaml files for kubectl to execute.
+
+Enter `kubectl get all` to check if the pods are running in the nodes. 
+If the `external-IP` is pending then you wil need to expose the IP. 
+
+`kubectl get svc` to get the service name
+
+Enter `kubectl describe svc [svc-name]` to get the namespace the node is one.
+
+Enter the svc name and namespace in the command below to patch/expose the IP.
+
+`kubectl patch svc <svc-name> -n <namespace> -p '{"spec": {"type": "LoadBalancer", "externalIPs":["172.31.71.218"]}}'`
