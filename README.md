@@ -8,6 +8,7 @@
 `kubectl get all`
 `kubectl delete pvc --all` && `kubectl delete pvc [name]`
 `kubectl delete all --all`
+`kubectl get namespace`
 
 ### **What is Kubernetes?**
 ------------
