@@ -276,3 +276,12 @@ Enter `kubectl describe svc [svc-name]` to get the namespace the node is one.
 Enter the svc name and namespace in the command below to patch/expose the IP.
 
 `kubectl patch svc <svc-name> -n <namespace> -p '{"spec": {"type": "LoadBalancer", "externalIPs":["172.31.71.218"]}}'`
+
+### Check containers
+
+```
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer \
+    --restart=always \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    portainer/portainer-ce:2.9.3
+```
